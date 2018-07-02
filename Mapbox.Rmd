@@ -2,7 +2,7 @@
 title: "R Notebook"
 output: html_notebook
 ---
-
+# create list of countries who qualified and by the right name used by the SpatialPolygonsDataFrame
 ```{r}
 # list of countries who qualified 32 - England = United Kingdom Serbia = Republic of Serbia
 qualified <- c('Spain','Nigeria','Egypt','Costa Rica','Japan','Tunisia', 'France','Switzerland','Portugal','Russia','Colombia','Peru','Senegal', 'United Kingdom','Denmark','Brazil','Germany','Iran (Islamic Republic of)','Korea, Republic of', 'Morocco', 'Belgium','Croatia','Saudi Arabia', 'Uruguay', 'Iceland', 'Argentina', 'Panama','Poland','Australia','Mexico','Sweden','Serbia')
