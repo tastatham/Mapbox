@@ -1,0 +1,84 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+# list of countries who qualified 32 - England = United Kingdom Serbia = Republic of Serbia
+qualified <- c('Spain','Nigeria','Egypt','Costa Rica','Japan','Tunisia', 'France','Switzerland','Portugal','Russia','Colombia','Peru','Senegal', 'United Kingdom','Denmark','Brazil','Germany','Iran (Islamic Republic of)','Korea, Republic of', 'Morocco', 'Belgium','Croatia','Saudi Arabia', 'Uruguay', 'Iceland', 'Argentina', 'Panama','Poland','Australia','Mexico','Sweden','Serbia')
+
+# knocked out countries... Korea Republic - South Korea
+knocked_out <- c('Saudi Arabia', 'Egypt', 'Iran (Islamic Republic of)', 'Morocco', 'Peru', 'Australia', 'Nigeria', 'Iceland', 'Serbia', 'Costa Rica', 'Korea, Republic of', 'Germany','Tunisia', 'Panama','Senegal','Poland')
+```
+
+```{r}
+# load library with shapefile
+library(maptools)
+# load shapefile
+data("wrld_simpl")
+names(wrld_simpl)
+
+wrld_simpl <- wrld_simpl[,c(5)]
+names(wrld_simpl)[1] <- 'Country'
+## create 2 df - one with countries still in and knocked out
+# apply values to countries in the wc 
+countries <- wrld_simpl[which(wrld_simpl$Country %in% qualified),]
+# 32 countries in the world cup
+nrow(countries)
+```
+
+```{r}
+#Probabilistic forecasts for the 2018 FIFA World Cup based on the bookmaker consensus model - https://econpapers.repec.org/paper/innwpaper/2018-09.html
+# read data from: https://eeecon.uibk.ac.at/~zeileis/news/fifa2018/
+odds <- read.csv('https://eeecon.uibk.ac.at/~zeileis/assets/posts/2018-05-30-fifa2018/fifa2018.csv',header=F)[-1,] # remove header & delete first row (old header)
+# identify what columns to keep
+names(odds)
+# subset columns - quarter final, semi-final, final,win
+odds <- odds[c(1,38,39,40,41)]
+# rename columns
+names(odds) <- c('Country','Quarter','Semi','Final','Win')
+# explore data
+head(odds)
+# convert to character 
+odds$Country <- as.character(odds$Country)
+# change row values
+odds$Country[odds$Country == "England"] <- "United Kingdom"
+odds$Country[odds$Country == "South Korea"] <- "Korea, Republic of"
+odds$Country[odds$Country == "Iran"] <- "Iran (Islamic Republic of)"
+```
+
+
+```{r}
+# create new df with world cup wins
+Country <- c('Brazil','Germany','Uruguay','Argentina','United Kingdom','France','Spain','Nigeria','Egypt','Costa Rica','Japan','Tunisia', 'Switzerland','Portugal','Russia','Colombia','Peru','Senegal','Denmark','Iran (Islamic Republic of)','Korea, Republic of', 'Morocco', 'Belgium','Croatia','Saudi Arabia', 'Iceland', 'Panama','Poland','Australia','Mexico','Sweden','Serbia')
+# apply wc wins
+WC_wins <- c(5,4,2,2,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+# combine country and wc_wins characters to form df
+df <- data.frame(Country,WC_wins)
+```
+
+```{r}
+# merge countries df with probability df
+d <- merge(countries,odds,by='Country')
+# merge previous df with number of wc wins
+d <- merge(d,df,by='Country')
+# apply function for making columns numeric
+d@data[,c('Quarter','Semi','Final','Win','WC_wins')] <- as.numeric(as.character(unlist(d@data[,c('Quarter','Semi','Final','Win', 'WC_wins')])))
+# explore structure
+head(d@data)
+# number of rows
+nrow(d)
+#check map projection - mapbox requires lat&lng
+proj4string(d)
+# package for exporting as shapefile
+library(rgdal)
+# write spatial data as shapefile
+writeOGR(d, ".", "mapbox", driver="ESRI Shapefile") #also you were missing the 
+# get colours based on the red sequential colour scheme
+library(RColorBrewer)
+display.brewer.pal(7,"Reds")
+# library for defining class intervals for choropleth mapping
+library(classInt)
+n <- classIntervals(n=7, d$Win, style='quantile')
+```
+
