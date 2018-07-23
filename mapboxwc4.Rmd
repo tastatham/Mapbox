@@ -1,0 +1,110 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+# create list of countries who qualified and their placement in the wc
+qualified <- c('Spain',
+               'Nigeria',
+               'Egypt',
+               'Costa Rica',
+               'Japan',
+               'Tunisia', 
+               'France',
+               'Switzerland',
+               'Portugal',
+               'Russia',
+               'Colombia',
+               'Peru',
+               'Senegal',
+               'United Kingdom',
+               'Denmark',
+               'Brazil',
+               'Germany',
+               'Iran (Islamic Republic of)',
+               'Korea, Republic of',
+               'Morocco', 'Belgium',
+               'Croatia',
+               'Saudi Arabia',
+               'Uruguay',
+               'Iceland',
+               'Argentina',
+               'Panama',
+               'Poland',
+               'Australia',
+               'Mexico',
+               'Sweden',
+               'Serbia')
+
+# knocked out of group stage
+groupstage <- c('Saudi Arabia', 
+                 'Egypt', 
+                 'Iran (Islamic Republic of)', 
+                 'Morocco', 
+                 'Peru', 
+                 'Australia', 
+                 'Nigeria', 
+                  'Iceland', 
+                 'Serbia', 
+                 'Costa Rica', 
+                 'Korea, Republic of', 
+                 'Germany',
+                 'Tunisia', 
+                 'Panama',
+                 'Senegal',
+                 'Poland')
+
+# knocked out of round 16
+round16 <- c('Portugal','Argentina','Mexico','Japan','Spain','Denmark','Switzerland','Colombia')
+
+# reached quarter
+quarter <- c('Uruguay','Brazil',"Russia","Sweden")
+# reached semi
+semi <- c("Belgium", "United Kingdom")
+# reached final
+final <- c('Croatia')
+# won
+won <- c('France')
+```
+
+```{r}
+# load library with shapefile
+library(maptools)
+# load shapefile
+data("wrld_simpl")
+#keep column 5 only
+wrld_simpl <- wrld_simpl[,c(5)]
+# rename column
+names(wrld_simpl)[1] <- 'Country'
+# keep only countries who qualified for the wc
+countries <- wrld_simpl[which(wrld_simpl$Country %in% qualified),]
+# create dummy column
+countries$rank <- 0
+# convert to character 
+countries$Country <- as.character(countries$Country)
+# convert to numeric
+countries$rank <- as.numeric(countries$rank)
+# apply lists to df
+countries$rank[countries$Country %in% groupstage] <- 16 
+countries$rank[countries$Country %in% round16] <- 20 
+countries$rank[countries$Country %in% quarter] <- 25 
+countries$rank[countries$Country %in% semi] <- 29 
+countries$rank[countries$Country %in% final] <- 31 
+countries$rank[countries$Country %in% won] <- 32 
+# explore data structure 
+countries@data
+```
+
+```{r}
+#check map projection - mapbox requires lat&lng
+proj4string(countries)
+# package for exporting as shapefile
+library(rgdal)
+# write spatial data as shapefile
+writeOGR(countries, ".", "mapbox2", driver="ESRI Shapefile") #also you were missing the 
+# get colours based on the red sequential colour scheme
+library(RColorBrewer)
+my.colours <- brewer.pal(n = 6, name = "Reds")
+my.colours
+```
+
