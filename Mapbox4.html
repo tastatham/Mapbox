@@ -214,16 +214,18 @@ mapboxgl.accessToken = 'pk.eyJ1IjoidGFzdGF0aGFtMSIsImEiOiJjamZ1ejY2bmYxNHZnMnhxb
 var beforeMap = new mapboxgl.Map({
     container: 'before',
     style: 'mapbox://styles/tastatham1/cjjy2a3sd4lx02sqcse1jkgyd',
-    center: [0, 0],
-    zoom: 0
+    center: [0, 43.825234],
+	pitch:20,
+    zoom: 4
 	
 });
 
 var afterMap = new mapboxgl.Map({
     container: 'after',
     style: 'mapbox://styles/tastatham1/cjjy6l7jc3egi2rrut7j7x201',
-    center: [0, 0],
-    zoom: 0
+    center: [0, 43.825234],
+	pitch:20,
+    zoom: 4
 });
 
 var map = new mapboxgl.Compare(beforeMap, afterMap, {
