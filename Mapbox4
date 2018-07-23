@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Swipe between maps</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+
+<style> 
+/* change background colours around elements */
+.mapboxgl-ctrl.mapboxgl-ctrl-attrib {
+  background-color: rgba(86, 1, 1, 0.7);
+}
+.mapboxgl-ctrl.mapboxgl-ctrl-attrib a {
+  color: #d17d61 !important;
+}
+/* change background colours around elements */
+.mapboxgl-ctrl-group {
+  background-color:rgba(86, 1, 1, 0.7) !important;
+  color: #d17d61 !important;
+  border: 1px solid #d17d61 !important;
+}
+.mapboxgl-ctrl-group > button + button {
+  border-top: 1px solid #d17d61 !important;
+}
+/* Takes default icon image URI and swaps the colors in the svg code to Amber */
+.mapboxgl-ctrl-icon.mapboxgl-ctrl-zoom-out {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg%20viewBox%3D%270%200%2020%2020%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%0A%20%20%3Cpath%20style%3D%27fill%3A%23d17d61%3B%27%20d%3D%27m%207%2C9%20c%20-0.554%2C0%20-1%2C0.446%20-1%2C1%200%2C0.554%200.446%2C1%201%2C1%20l%206%2C0%20c%200.554%2C0%201%2C-0.446%201%2C-1%200%2C-0.554%20-0.446%2C-1%20-1%2C-1%20z%27%20%2F%3E%0A%3C%2Fsvg%3E%0A") !important;
+}
+.mapboxgl-ctrl-icon.mapboxgl-ctrl-zoom-in {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg%20viewBox%3D%270%200%2020%2020%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%0A%20%20%3Cpath%20style%3D%27fill%3A%23d17d61%3B%27%20d%3D%27M%2010%206%20C%209.446%206%209%206.4459904%209%207%20L%209%209%20L%207%209%20C%206.446%209%206%209.446%206%2010%20C%206%2010.554%206.446%2011%207%2011%20L%209%2011%20L%209%2013%20C%209%2013.55401%209.446%2014%2010%2014%20C%2010.554%2014%2011%2013.55401%2011%2013%20L%2011%2011%20L%2013%2011%20C%2013.554%2011%2014%2010.554%2014%2010%20C%2014%209.446%2013.554%209%2013%209%20L%2011%209%20L%2011%207%20C%2011%206.4459904%2010.554%206%2010%206%20z%27%20%2F%3E%0A%3C%2Fsvg%3E%0A") !important;
+}
+.mapboxgl-ctrl-icon.mapboxgl-ctrl-compass > .mapboxgl-ctrl-compass-arrow {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2020%2020%27%3E%0A%09%3Cpolygon%20fill%3D%27%23d17d61%27%20points%3D%276%2C9%2010%2C1%2014%2C9%27%2F%3E%0A%09%3Cpolygon%20fill%3D%27%23784a3a%27%20points%3D%276%2C11%2010%2C19%2014%2C11%20%27%2F%3E%0A%3C%2Fsvg%3E") !important;
+}
+</style> 
+
+
+
+<style>
+body {
+    overflow: hidden;
+}
+
+body * {
+   -webkit-touch-callout: none;
+     -webkit-user-select: none;
+        -moz-user-select: none;
+         -ms-user-select: none;
+             user-select: none;
+}
+
+.map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+}
+</style>
+
+
+<style>
+.mapboxgl-compare {
+  background-color:#7e7e7e;
+  position:absolute;
+  width:2px;
+  height:100%;
+  z-index:1;
+  }
+.mapboxgl-compare .compare-swiper {
+  background-color:#7e7e7e;
+  box-shadow:inset 0 0 0 2px #7e7e7e;
+  display:inline-block;
+  border-radius:50%;
+  position:absolute;
+  width:60px;
+  height:60px;
+  top:50%;
+  left:-30px;
+  margin:-30px 1px 0;
+  color: #7e7e7e;
+  cursor:ew-resize;
+	background-image:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIiAgIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyIgICB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgICB4bWxuczpzb2RpcG9kaT0iaHR0cDovL3NvZGlwb2RpLnNvdXJjZWZvcmdlLm5ldC9EVEQvc29kaXBvZGktMC5kdGQiICAgeG1sbnM6aW5rc2NhcGU9Imh0dHA6Ly93d3cuaW5rc2NhcGUub3JnL25hbWVzcGFjZXMvaW5rc2NhcGUiICAgd2lkdGg9IjYwIiAgIGhlaWdodD0iNjAiICAgdmVyc2lvbj0iMS4xIiAgIHZpZXdCb3g9IjAgMCA2MCA2MCIgICBpZD0ic3ZnNTQzNCIgICBpbmtzY2FwZTp2ZXJzaW9uPSIwLjkxK2RldmVsK29zeG1lbnUgcjEyOTExIiAgIHNvZGlwb2RpOmRvY25hbWU9Imwtci5zdmciPiAgPG1ldGFkYXRhICAgICBpZD0ibWV0YWRhdGE1NDQ0Ij4gICAgPHJkZjpSREY+ICAgICAgPGNjOldvcmsgICAgICAgICByZGY6YWJvdXQ9IiI+ICAgICAgICA8ZGM6Zm9ybWF0PmltYWdlL3N2Zyt4bWw8L2RjOmZvcm1hdD4gICAgICAgIDxkYzp0eXBlICAgICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9wdXJsLm9yZy9kYy9kY21pdHlwZS9TdGlsbEltYWdlIiAvPiAgICAgICAgPGRjOnRpdGxlPjwvZGM6dGl0bGU+ICAgICAgPC9jYzpXb3JrPiAgICA8L3JkZjpSREY+ICA8L21ldGFkYXRhPiAgPGRlZnMgICAgIGlkPSJkZWZzNTQ0MiIgLz4gIDxzb2RpcG9kaTpuYW1lZHZpZXcgICAgIHBhZ2Vjb2xvcj0iI2ZmZmZmZiIgICAgIGJvcmRlcmNvbG9yPSIjNjY2NjY2IiAgICAgYm9yZGVyb3BhY2l0eT0iMSIgICAgIG9iamVjdHRvbGVyYW5jZT0iMTAiICAgICBncmlkdG9sZXJhbmNlPSIxMCIgICAgIGd1aWRldG9sZXJhbmNlPSIxMCIgICAgIGlua3NjYXBlOnBhZ2VvcGFjaXR5PSIwIiAgICAgaW5rc2NhcGU6cGFnZXNoYWRvdz0iMiIgICAgIGlua3NjYXBlOndpbmRvdy13aWR0aD0iMTI4NiIgICAgIGlua3NjYXBlOndpbmRvdy1oZWlnaHQ9Ijc1MSIgICAgIGlkPSJuYW1lZHZpZXc1NDQwIiAgICAgc2hvd2dyaWQ9InRydWUiICAgICBpbmtzY2FwZTp6b29tPSI0IiAgICAgaW5rc2NhcGU6Y3g9IjI1Ljg4OTgzMSIgICAgIGlua3NjYXBlOmN5PSIzNC4zODE4MzMiICAgICBpbmtzY2FwZTp3aW5kb3cteD0iMCIgICAgIGlua3NjYXBlOndpbmRvdy15PSIyMyIgICAgIGlua3NjYXBlOndpbmRvdy1tYXhpbWl6ZWQ9IjAiICAgICBpbmtzY2FwZTpjdXJyZW50LWxheWVyPSJzdmc1NDM0IiAgICAgaW5rc2NhcGU6b2JqZWN0LW5vZGVzPSJ0cnVlIiAgICAgaW5rc2NhcGU6c25hcC1zbW9vdGgtbm9kZXM9InRydWUiPiAgICA8aW5rc2NhcGU6Z3JpZCAgICAgICB0eXBlPSJ4eWdyaWQiICAgICAgIGlkPSJncmlkNTk4OSIgLz4gIDwvc29kaXBvZGk6bmFtZWR2aWV3PiAgPHBhdGggICAgIHN0eWxlPSJmaWxsOiNmZmZmZmY7ZmlsbC1ydWxlOmV2ZW5vZGQ7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjFweDtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjptaXRlcjtzdHJva2Utb3BhY2l0eToxIiAgICAgZD0iTSAyNSAyNCBMIDE2IDMwIEwgMjUgMzYgTCAyNSAyNCB6IE0gMzUgMjQgTCAzNSAzNiBMIDQ0IDMwIEwgMzUgMjQgeiAiICAgICBpZD0icGF0aDU5OTUiIC8+PC9zdmc+);
+  }
+</style>
+
+
+<style> 
+.legend {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 3px;
+	border-style: solid;
+    border-width: 5px;
+	border-color: #1da1ab;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    padding: 10px;
+    position: absolute;
+    left=5px;
+	top: 0px;
+    z-index: 1;
+    opacity = 0.5;
+}
+.legend h3 {
+  background: #808080;
+  color: #fff; 
+  margin: +10px;
+  display: block;
+  padding: 10px;
+  width: 220px;
+  border-radius: 3px 3px 0 0;
+  font-size: large;
+  margin-top: -10px;
+  margin-right:-10px;
+  margin-left:-10px;
+  padding-left:5em;
+}
+.legend div span {
+  display:block;
+  float:left;
+  height:15px;
+  width:100%;
+  text-align:center;
+  font-size:12px;
+  background: rgba(255, 255, 255, 0.5);
+  }
+</style> 
+
+<style> 
+.legend2 {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 3px;
+	border-style: solid;
+    border-width: 5px;
+	border-color: #1da1ab;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    padding: 10px;
+    position: absolute;
+    right:0px;
+	bottom: 20px;
+    z-index: 1;
+    opacity = 0.5;
+}
+.legend2 h3 {
+  background: #808080;
+  color: #fff; 
+  margin: +10px;
+  display: block;
+  padding: 10px;
+  width: 220px;
+  border-radius: 3px 3px 0 0;
+  font-size: large;
+  margin-top: -10px;
+  margin-right:-10px;
+  margin-left:-10px;
+  padding-left:5em;
+}
+.legend2 div span {
+  display:block;
+  float:left;
+  height:15px;
+  width:100%;
+  text-align:center;
+  font-size:12px;
+  background: rgba(255, 255, 255, 0.5);
+  }
+</style> 
+
+
+
+<div id='state-legend' class='legend2'>
+    <h3>Results</h3>
+    <div><span style='background: #fcbba1'><b>Qualified<b/></span></div>
+    <div><span style='background: #fc9272'><b>Reached Group 16<b/></span></div>
+    <div><span style='background: #fb6b4b'><b>Reached Quarter<b/></span></div>
+    <div><span style='background: #cb181d'><b>Reached Semi<b/></span></div>
+    <div><span style='background: #99000d'>Runner Up<b/></span></div>
+    <div><span style='background: #560101'><b>Winning Nation<b/></span></div>
+    <small>Source: <a href="https://eeecon.uibk.ac.at/~zeileis/assets/posts/2018-05-30-fifa2018/fifa2018.csv">Probabilistic Forecasting for the 2018 FIFA World Cup
+</a></small>
+
+</div>
+
+<div id='state-legend2' class='legend'>
+    <h3>Predicted Results</h3>
+    <div><span style='background: #fcbba1'><b>Group Least Likely to Win<b/></span></div>
+    <div><span style='background: #fc9272'><b>2nd Group<b/></span></div>
+    <div><span style='background: #fb6b4b'><b>3rd Group<b/></span></div>
+    <div><span style='background: #cb181d'><b>4th Group<b/></span></div>
+    <div><span style='background: #99000d'>5th Group<b/></span></div>
+    <div><span style='background: #560101'><b>Most Likely to Win<b/></span></div>
+    <small>Source: <a href="https://eeecon.uibk.ac.at/~zeileis/assets/posts/2018-05-30-fifa2018/fifa2018.csv">Probabilistic Forecasting for the 2018 FIFA World Cup
+</a></small>
+</div>
+
+
+
+<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.1.0/mapbox-gl-compare.js'></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.1.0/mapbox-gl-compare.css' type='text/css' />
+
+<div id='before' class='map'></div>
+<div id='after' class='map'></div>
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoidGFzdGF0aGFtMSIsImEiOiJjamZ1ejY2bmYxNHZnMnhxbjEydW9sM29hIn0.w9ndNH49d91aeyvxSjKQqg';
+var beforeMap = new mapboxgl.Map({
+    container: 'before',
+    style: 'mapbox://styles/tastatham1/cjjhaxv0hbice2snj81j9ertu',
+    center: [0, 0],
+    zoom: 0
+	
+});
+
+var afterMap = new mapboxgl.Map({
+    container: 'after',
+    style: 'mapbox://styles/tastatham1/cjjy6l7jc3egi2rrut7j7x201',
+    center: [0, 0],
+    zoom: 0
+});
+
+var map = new mapboxgl.Compare(beforeMap, afterMap, {
+    // Set this to enable comparing two maps by mouse movement:
+    // mousemove: true
+});
+  	
+beforeMap.addControl(new mapboxgl.NavigationControl({ //Add navigation control - North Arrow
+            position: 'top-right' // position of navigation top-right
+        }));
+beforeMap.addControl(new mapboxgl.FullscreenControl()); //Add full screen mode
+beforeMap.addControl(new mapboxgl.ScaleControl({ //Add scale bar
+    maxWidth: 300,
+    unit: 'imperial'
+}));
+    
+</script>
+
+</body>
+</html>
