@@ -4,55 +4,11 @@ output: html_notebook
 ---
 ```{r}
 # create list of countries who qualified and their placement in the wc
-qualified <- c('Spain',
-               'Nigeria',
-               'Egypt',
-               'Costa Rica',
-               'Japan',
-               'Tunisia', 
-               'France',
-               'Switzerland',
-               'Portugal',
-               'Russia',
-               'Colombia',
-               'Peru',
-               'Senegal',
-               'United Kingdom',
-               'Denmark',
-               'Brazil',
-               'Germany',
-               'Iran (Islamic Republic of)',
-               'Korea, Republic of',
-               'Morocco', 'Belgium',
-               'Croatia',
-               'Saudi Arabia',
-               'Uruguay',
-               'Iceland',
-               'Argentina',
-               'Panama',
-               'Poland',
-               'Australia',
-               'Mexico',
-               'Sweden',
-               'Serbia')
+
+qualified <- c('Spain','Nigeria','Egypt','Costa Rica','Japan','Tunisia', 'France','Switzerland','Portugal', 'Russia','Colombia','Peru','Senegal','United Kingdom','Denmark','Brazil','Germany','Iran (Islamic Republic of)','Korea, Republic of','Morocco', 'Belgium','Croatia','Saudi Arabia','Uruguay','Iceland','Argentina','Panama','Poland','Australia','Mexico','Sweden','Serbia')
 
 # knocked out of group stage
-groupstage <- c('Saudi Arabia', 
-                 'Egypt', 
-                 'Iran (Islamic Republic of)', 
-                 'Morocco', 
-                 'Peru', 
-                 'Australia', 
-                 'Nigeria', 
-                  'Iceland', 
-                 'Serbia', 
-                 'Costa Rica', 
-                 'Korea, Republic of', 
-                 'Germany',
-                 'Tunisia', 
-                 'Panama',
-                 'Senegal',
-                 'Poland')
+groupstage <- c('Saudi Arabia', 'Egypt', 'Iran (Islamic Republic of)', 'Morocco', 'Peru', 'Australia', 'Nigeria','Poland')
 
 # knocked out of round 16
 round16 <- c('Portugal','Argentina','Mexico','Japan','Spain','Denmark','Switzerland','Colombia')
