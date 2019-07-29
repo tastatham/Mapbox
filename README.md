@@ -1,2 +1,3 @@
-# Mapbox
-A repository for creating interactive thematic maps (and other types) in Mapbox :) 
+# Mapbox World Cup
+
+A repository containing my submission to the Mapbox World Cup
